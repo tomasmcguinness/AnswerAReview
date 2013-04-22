@@ -1,0 +1,70 @@
+﻿@{
+  ViewBag.Title = "Index";
+}
+<link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+<div class="container" style="padding-top: 20px;">
+  <div class="hero-unit">
+    <h1>Answer a Review</h1>
+    <h2>Giving developers a voice</h2>
+  </div>
+  <div>
+    <input id="searchBox" type="text" />
+    <button class="btn" data-bind="click: search">Search For App</button>
+  </div>
+  <table class="table">
+    <tbody data-bind="foreach: results">
+      <tr>
+        <td>
+          <div>
+            <img data-bind="attr: { src: largeImage }" />
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<script src="~/Scripts/jquery-1.9.1.min.js"></script>
+<script src="~/Scripts/bootstrap.min.js"></script>
+<script src="~/Scripts/knockout-2.2.1.js"></script>
+
+<script type="text/javascript">
+
+  var model = new mainViewModel();
+
+  function mainViewModel() {
+    var self = this;
+
+    self.results = ko.observableArray();
+
+    self.search = function () {
+      alert("Seaching for " + $("#searchBox").val());
+
+      $.ajax({
+        url: "https://itunes.apple.com/search?media=software&term=" + $("#searchBox").val(),
+        dataType: "jsonp"
+      }).done(function (data) {
+        alert(data.resultCount);
+
+        for (var i = 0; i < data.resultCount; i++) {
+          var model = new resultModel();
+          model.largeImage(data.results[i].artworkUrl60);
+          self.results.push(model);
+        }
+
+      }).error(function () {
+        alert("Error");
+      });
+
+    };
+
+  };
+
+  function resultModel() {
+    var self = this;
+
+    self.largeImage = ko.observable();
+  }
+
+  ko.applyBindings(model);
+
+</script>
