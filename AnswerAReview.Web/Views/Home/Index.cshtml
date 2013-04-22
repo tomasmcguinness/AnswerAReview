@@ -8,8 +8,13 @@
     <h2>Giving developers a voice</h2>
   </div>
   <div>
-    <input id="searchBox" type="text" />
-    <button class="btn" data-bind="click: search">Search For App</button>
+    <form class="form-search">
+      <div class="input-prepend">
+        <span class="add-on">@@</span>
+        <input class="input-xxlarge" id="searchBox" type="text" placeholder="Enter the name of an iOS app" />
+      </div>
+      <button type="button" class="btn" data-bind="click: search">Search For App</button>
+    </form>
   </div>
   <table class="table">
     <tbody data-bind="foreach: results">
@@ -35,15 +40,12 @@
     var self = this;
 
     self.results = ko.observableArray();
-
     self.search = function () {
-      alert("Seaching for " + $("#searchBox").val());
 
       $.ajax({
         url: "https://itunes.apple.com/search?media=software&term=" + $("#searchBox").val(),
         dataType: "jsonp"
       }).done(function (data) {
-        alert(data.resultCount);
 
         for (var i = 0; i < data.resultCount; i++) {
           var model = new resultModel();
@@ -54,9 +56,7 @@
       }).error(function () {
         alert("Error");
       });
-
     };
-
   };
 
   function resultModel() {
