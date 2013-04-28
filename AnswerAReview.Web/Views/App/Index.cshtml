@@ -3,6 +3,7 @@
     ViewBag.Title = "Index";
 }
 <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+<link href="~/Content/font-awesome.min.css" rel="stylesheet" />
 <div class="container" style="padding-top: 20px;">
     <h2 data-bind="html: appName"></h2>
     <h4>Reviews</h4>
@@ -15,7 +16,23 @@
     </ul>
 
     <div class="tab-content">
-        <div class="tab-pane active" id="home">...</div>
+        <div class="tab-pane active" id="home">
+            <table class="table table">
+                <tbody data-bind="foreach: fiveStarReviews">
+                    <tr>
+                        <td>
+                            <div>
+                                <span data-bind="html: reviewBody"></span>
+
+                            </div>
+                            <div>
+                                <button class="btn"><i class="icon-reply"></i>&#180;Answer This Review</button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
         <div class="tab-pane" id="profile">****</div>
         <div class="tab-pane" id="messages">...</div>
         <div class="tab-pane" id="settings">...</div>
@@ -56,16 +73,23 @@
 
                 $.ajax({
                     url: "http://itunes.apple.com/GB/rss/customerreviews/id=" + "@Model" + "/json",
-                     dataType: "jsonp"
-                 }).done(function (data) {
+                    dataType: "jsonp"
+                }).done(function (data) {
 
-                     var result = data.feed.entry[0];
-                     console.log("Found Reviews: " + data.feed.entry.length);
-                     console.log("Found Reviews: " + data.feed.entry[1].title.label);
+                    var result = data.feed.entry[0];
+                    console.log("Found Reviews: " + data.feed.entry.length);
+                    console.log("Found Reviews: " + data.feed.entry[1].title.label);
 
-                 }).error(function () {
-                     alert("Error");
-                 });
+                    for (var i = 1; i < data.feed.entry.length; i++) {
+                        var review = new reviewModel();
+                        review.reviewBody(data.feed.entry[i].content.label);
+
+                        self.fiveStarReviews.push(review);
+                    }
+
+                }).error(function () {
+                    alert("Error");
+                });
 
 
             }).error(function () {
@@ -73,6 +97,13 @@
             });
         };
     };
+
+    function reviewModel() {
+        var self = this;
+
+        self.reviewBody = ko.observable();
+    };
+
 
     ko.applyBindings(model);
 
