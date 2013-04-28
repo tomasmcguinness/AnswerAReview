@@ -4,40 +4,29 @@
 }
 <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
 <link href="~/Content/font-awesome.min.css" rel="stylesheet" />
+<link href="~/Content/Site.css" rel="stylesheet" />
 <div class="container" style="padding-top: 20px;">
     <h2 data-bind="html: appName"></h2>
-    <h4>Reviews</h4>
-    <ul class="nav nav-tabs" id="myTab" data-toggle="tab">
-        <li class="active"><a href="#home">*****</a></li>
-        <li><a href="#profile">****</a></li>
-        <li><a href="#messages">***</a></li>
-        <li><a href="#settings">**</a></li>
-        <li><a href="#settings">*</a></li>
-    </ul>
-
-    <div class="tab-content">
-        <div class="tab-pane active" id="home">
-            <table class="table table">
-                <tbody data-bind="foreach: fiveStarReviews">
-                    <tr>
-                        <td>
-                            <div>
-                                <span data-bind="html: reviewBody"></span>
-
-                            </div>
-                            <div>
-                                <button class="btn"><i class="icon-reply"></i>&#180;Answer This Review</button>
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+    <h4>All Reviews</h4>
+    <div class="tab-pane active" id="home">
+        <div data-bind="foreach: fiveStarReviews">
+            <div class="well well-transparent">
+                <h5><span data-bind="html: authorName"></span>
+                    <span class="icon-star-empty icon-large"></span>
+                    <span class="icon-star-empty icon-large"></span>
+                    <span class="icon-star-empty icon-large"></span>
+                    <span class="icon-star-empty icon-large"></span>
+                    <span class="icon-star-empty icon-large"></span></h5>
+                <p data-bind="html: reviewBody"></p>
+                <div class="well well-small">
+                    <span class="label label-info">Reply From Author</span>
+                    <span>Sorry you feel this way. Version 1.8 fixes a lot of these issues.    
+                    </span>
+                </div>
+                <button class="btn"><i class="icon-reply"></i>&#8194;Answer This Review</button>
+            </div>
         </div>
-        <div class="tab-pane" id="profile">****</div>
-        <div class="tab-pane" id="messages">...</div>
-        <div class="tab-pane" id="settings">...</div>
     </div>
-
 </div>
 <script src="~/Scripts/jquery-1.9.1.min.js"></script>
 <script src="~/Scripts/bootstrap.min.js"></script>
@@ -83,6 +72,7 @@
                     for (var i = 1; i < data.feed.entry.length; i++) {
                         var review = new reviewModel();
                         review.reviewBody(data.feed.entry[i].content.label);
+                        review.authorName(data.feed.entry[i].author.name.label);
 
                         self.fiveStarReviews.push(review);
                     }
@@ -100,7 +90,7 @@
 
     function reviewModel() {
         var self = this;
-
+        self.authorName = ko.observable();
         self.reviewBody = ko.observable();
     };
 
