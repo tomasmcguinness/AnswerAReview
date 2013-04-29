@@ -53,7 +53,7 @@
 
                 for (var i = 0; i < data.resultCount; i++) {
                     var model = new resultModel();
-                    model.appId(data.results[i].trackId);
+                    model.appId(data.results[i].artistId);
                     model.largeImage(data.results[i].artworkUrl60);
                     self.results.push(model);
                 }
