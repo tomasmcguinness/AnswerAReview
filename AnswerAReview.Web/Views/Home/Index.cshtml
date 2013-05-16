@@ -2,6 +2,7 @@
     ViewBag.Title = "Index";
 }
 <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+<link href="~/Content/font-awesome-ie7.css" rel="stylesheet" />
 <div class="container" style="padding-top: 20px;">
     <div class="hero-unit">
         <h1>Answer a Review</h1>
@@ -15,6 +16,9 @@
             </div>
             <button type="button" class="btn" data-bind="click: search">Search For App</button>
         </form>
+    </div>
+    <div class="alert alert-info" data-bind="visible: isSearching">
+      <i class="icon-spinner icon-spin"></i> Searching iTunes...
     </div>
     <table class="table">
         <tbody data-bind="foreach: results">
@@ -42,24 +46,31 @@
         var self = this;
 
         self.results = ko.observableArray();
+        self.isSearching = ko.observable(false);
         self.search = function () {
 
+            self.results.removeAll();
+            self.isSearching(true);
+
             $.ajax({
-                url: "https://itunes.apple.com/search?media=software&term=" + $("#searchBox").val(),
+                url: "https://itunes.apple.com/search?media=software&term=" + encodeURI($("#searchBox").val()),
                 dataType: "jsonp"
             }).done(function (data) {
 
                 console.log("Found " + data.results.length);
-
+                
                 for (var i = 0; i < data.resultCount; i++) {
                     var model = new resultModel();
-                    model.appId(data.results[i].artistId);
+                    model.appId(data.results[i].trackId);
                     model.largeImage(data.results[i].artworkUrl60);
                     self.results.push(model);
                 }
 
+                self.isSearching(false);
+
             }).error(function () {
                 alert("Error");
+                self.isSearching(false);
             });
         };
     };
