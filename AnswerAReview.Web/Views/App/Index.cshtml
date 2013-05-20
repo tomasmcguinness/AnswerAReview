@@ -1,91 +1,115 @@
 ﻿@model long
 @{
-  ViewBag.Title = "Index";
+    ViewBag.Title = "Index";
 }
-<link href="~/Content/bootstrap.min.css" rel="stylesheet" />
-<link href="~/Content/font-awesome.min.css" rel="stylesheet" />
-<link href="~/Content/Site.css" rel="stylesheet" />
-<div class="container" style="padding-top: 20px;">
-  <h2 data-bind="html: appName"></h2>
-  <h4>All Reviews</h4>
-  <div class="tab-pane active" id="home">
-    <div data-bind="foreach: fiveStarReviews">
-      <div class="well well-transparent">
-        <h5><span data-bind="html: authorName"></span>
-          <span class="icon-star-empty icon-large"></span>
-          <span class="icon-star-empty icon-large"></span>
-          <span class="icon-star-empty icon-large"></span>
-          <span class="icon-star-empty icon-large"></span>
-          <span class="icon-star-empty icon-large"></span></h5>
-        <p data-bind="html: reviewBody"></p>
-        <div class="well well-small">
-          <span class="label label-info">Reply From Author</span>
-          <span>Sorry you feel this way. Version 1.8 fixes a lot of these issues.    
-          </span>
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/font-awesome.min.css" rel="stylesheet" />
+    <link href="~/Content/Site.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="container" style="padding-top: 20px;">
+        <div style="position: relative;">
+            <h2 data-bind="text: appName"></h2>
+            <div class="pull-right" style="position: absolute; top: 0; right: 0; vertical-align: top; text-align:right;">
+                <button class="btn btn-primary">Claim This App</button><br />
+                <span>Did you develop this app?</span>
+                @*<span class="label label-success">AUTHOR REGISTERED
+                </span>*@
+            </div>
         </div>
-        <button class="btn"><i class="icon-reply"></i>&#8194;Answer This Review</button>
-      </div>
+        <h4 style="color: #888;" data-bind="text: developerName"></h4>
+        <h4>All Reviews</h4>
+        <div class="tab-pane active" id="home">
+            <div data-bind="foreach: fiveStarReviews">
+                <div class="well well-transparent">
+                    <h5><span data-bind="html: authorName"></span>
+                        <span class="icon-large" data-bind="css: { 'icon-star': rating() >= 1, 'icon-star-empty': rating() < 1}"></span>
+                        <span class="icon-large" data-bind="css: { 'icon-star': rating() >= 2, 'icon-star-empty': rating() < 2}"></span>
+                        <span class="icon-large" data-bind="css: { 'icon-star': rating() >= 3, 'icon-star-empty': rating() < 3}"></span>
+                        <span class="icon-large" data-bind="css: { 'icon-star': rating() >= 4, 'icon-star-empty': rating() < 4}"></span>
+                        <span class="icon-large" data-bind="css: { 'icon-star': rating() == 5, 'icon-star-empty': rating() < 5 }"></span>
+                    </h5>
+                    <p data-bind="html: reviewBody"></p>
+                    @*<div class="well well-small">
+                        <span class="label label-info">Reply From Author</span>
+                        <span>Sorry you feel this way. Version 1.8 fixes a lot of these issues.    
+                        </span>
+                    </div>*@
+                    <button class="btn btn-info"><i class="icon-reply"></i>&#8194;Claim this app to answer
+                        the review</button>
+                    @*<button class="btn"><i class="icon-reply"></i>&#8194;Answer This Review</button>*@
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-</div>
-<script src="~/Scripts/jquery-1.9.1.min.js"></script>
-<script src="~/Scripts/bootstrap.min.js"></script>
-<script src="~/Scripts/knockout-2.2.1.js"></script>
+    <script src="~/Scripts/jquery-1.9.1.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <script src="~/Scripts/knockout-2.2.1.js"></script>
 
-<script type="text/javascript">
-  //https://itunes.apple.com/lookup?id=284910350
+    <script type="text/javascript">
+        //https://itunes.apple.com/lookup?id=284910350
 
-  $().ready(function () {
-    model.load();
-  });
-
-  var model = new appViewModel();
-
-  function appViewModel() {
-    var self = this;
-
-    self.appName = ko.observable();
-    self.fiveStarReviews = ko.observableArray();
-    self.fourStarReviews = ko.observableArray();
-    self.load = function () {
-
-      $.ajax({
-        url: "https://itunes.apple.com/lookup?id=" + "@Model",
-        dataType: "jsonp"
-      }).done(function (data) {
-
-        var result = data.results[0];
-        console.log("Found " + result.trackName);
-
-        self.appName(result.trackName);
-
-        $.ajax({
-          url: "http://itunes.apple.com/GB/rss/customerreviews/id=" + "@Model" + "/json",
-          dataType: "json"
-        }).done(function (data) {
-
-          if (data.feed.entry != null) {
-            console.log("Found Reviews: " + data.feed.entry.length);
-            var result = data.feed.entry[0];
-
-            for (var i = 1; i < data.feed.entry.length; i++) {
-              var review = new reviewModel();
-              review.reviewBody(data.feed.entry[i].content.label);
-              review.authorName(data.feed.entry[i].author.name.label);
-
-              self.fiveStarReviews.push(review);
-            }
-          }
+        $().ready(function () {
+            model.load();
         });
-      });
-    };
-  };
-  function reviewModel() {
-    var self = this;
-    self.authorName = ko.observable();
-    self.reviewBody = ko.observable();
-  };
 
-  ko.applyBindings(model);
+        var model = new appViewModel();
 
-</script>
+        function appViewModel() {
+            var self = this;
+
+            self.appName = ko.observable();
+            self.developerName = ko.observable();
+            self.fiveStarReviews = ko.observableArray();
+            self.fourStarReviews = ko.observableArray();
+            self.load = function () {
+
+                $.ajax({
+                    url: "https://itunes.apple.com/lookup?id=" + "@Model",
+                    dataType: "jsonp"
+                }).done(function (data) {
+
+                    var result = data.results[0];
+                    console.log("Found " + result.trackName);
+
+                    self.developerName(result.artistName);
+                    self.appName(result.trackName);
+
+                    $.ajax({
+                        url: "http://itunes.apple.com/US/rss/customerreviews/id=" + "@Model" + "/json",
+                        dataType: "json"
+                    }).done(function (data) {
+
+                        if (data.feed.entry != null) {
+                            console.log("Found Reviews: " + data.feed.entry.length);
+                            var result = data.feed.entry[0];
+
+                            for (var i = 1; i < data.feed.entry.length; i++) {
+
+                                var review = new reviewModel();
+                                review.rating(parseInt(data.feed.entry[i]["im:rating"].label));
+                                review.reviewBody(data.feed.entry[i].content.label);
+                                review.authorName(data.feed.entry[i].author.name.label);
+
+                                self.fiveStarReviews.push(review);
+                            }
+                        }
+                    });
+                });
+            };
+        };
+        function reviewModel() {
+            var self = this;
+            self.rating = ko.observable();
+            self.authorName = ko.observable();
+            self.reviewBody = ko.observable();
+        };
+
+        ko.applyBindings(model);
+
+    </script>
+</body>
+</html>

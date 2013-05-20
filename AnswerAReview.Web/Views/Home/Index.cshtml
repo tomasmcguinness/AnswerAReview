@@ -1,90 +1,113 @@
 ﻿@{
     ViewBag.Title = "Index";
 }
-<link href="~/Content/bootstrap.min.css" rel="stylesheet" />
-<link href="~/Content/font-awesome-ie7.css" rel="stylesheet" />
-<div class="container" style="padding-top: 20px;">
-    <div class="hero-unit">
-        <h1>Answer a Review</h1>
-        <h2>Giving developers a voice</h2>
-    </div>
-    <div>
-        <form class="form-search">
-            <div class="input-prepend">
-                <span class="add-on">@@</span>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Answer-a-Review: Giving iOS developers a voice!</title>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/font-awesome.min.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="container" style="padding-top: 20px;">
+        <div class="hero-unit">
+            <h1>Answer a Review</h1>
+            <h2>Giving developers a voice</h2>
+        </div>
+        <div style="text-align: center;">
+            <div class="input-prepend input-append">
+                <span class="add-on">App Name</span>
                 <input class="input-xxlarge" id="searchBox" type="text" placeholder="Enter the name of an iOS app" />
+                <button class="btn btn-success" data-bind="click: search" type="button">Search</button>
             </div>
-            <button type="button" class="btn" data-bind="click: search">Search For App</button>
-        </form>
+        </div>
+        <div class="well" data-bind="visible: isSearching">
+            <i class="icon-spinner icon-spin"></i>&nbsp;Searching iTunes for this app...
+        </div>
+        <table class="table">
+            <tbody data-bind="foreach: results">
+                <tr>
+                    <td>
+                        <div style="position: relative;">
+                            <a href="#" data-bind="attr: { href: appLink }">
+                                <img data-bind="attr: { src: largeImage }" />
+                            </a>
+                            <span style="position: absolute; left: 70px; font-weight: bold; font-size: 22px;"
+                                data-bind="text: title"></span>
+                            <div style="position: absolute; left: 80px; top: 25px;">
+                                <span style="font-style: italic; font-size: 18px;" data-bind="text: developerName">
+                                </span>&nbsp;&nbsp;
+                            </div>
+                            <div style="position:absolute; top:0; right:0">
+                                <span class="label label-success">Author Registered</span>
+                            </div>
+                            <div style="position:absolute; bottom: 2px; right:0">
+                                <a data-bind="attr: { href: appLink }" class="btn btn-info">Read Reviews »</a>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
     </div>
-    <div class="alert alert-info" data-bind="visible: isSearching">
-      <i class="icon-spinner icon-spin"></i> Searching iTunes...
-    </div>
-    <table class="table">
-        <tbody data-bind="foreach: results">
-            <tr>
-                <td>
-                    <div>
-                        <a href="#" data-bind="attr: { href: appLink }">
-                            <img data-bind="attr: { src: largeImage }" />
-                        </a>
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-</div>
-<script src="~/Scripts/jquery-1.9.1.min.js"></script>
-<script src="~/Scripts/bootstrap.min.js"></script>
-<script src="~/Scripts/knockout-2.2.1.js"></script>
+    <script src="~/Scripts/jquery-1.9.1.min.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <script src="~/Scripts/knockout-2.2.1.js"></script>
 
-<script type="text/javascript">
+    <script type="text/javascript">
 
-    var model = new mainViewModel();
+        var model = new mainViewModel();
 
-    function mainViewModel() {
-        var self = this;
+        function mainViewModel() {
+            var self = this;
 
-        self.results = ko.observableArray();
-        self.isSearching = ko.observable(false);
-        self.search = function () {
+            self.results = ko.observableArray();
+            self.isSearching = ko.observable(false);
+            self.search = function () {
 
-            self.results.removeAll();
-            self.isSearching(true);
+                self.results.removeAll();
+                self.isSearching(true);
 
-            $.ajax({
-                url: "https://itunes.apple.com/search?media=software&term=" + encodeURI($("#searchBox").val()),
-                dataType: "jsonp"
-            }).done(function (data) {
+                $.ajax({
+                    url: "https://itunes.apple.com/search?media=software&term=" + encodeURI($("#searchBox").val()),
+                    dataType: "jsonp"
+                }).done(function (data) {
 
-                console.log("Found " + data.results.length);
-                
-                for (var i = 0; i < data.resultCount; i++) {
-                    var model = new resultModel();
-                    model.appId(data.results[i].trackId);
-                    model.largeImage(data.results[i].artworkUrl60);
-                    self.results.push(model);
-                }
+                    console.log("Found " + data.results.length);
 
-                self.isSearching(false);
+                    for (var i = 0; i < data.resultCount; i++) {
+                        var model = new resultModel();
+                        model.title(data.results[i].trackName);
+                        model.developerName(data.results[i].artistName);
+                        model.appId(data.results[i].trackId);
+                        model.largeImage(data.results[i].artworkUrl60);
+                        self.results.push(model);
+                    }
 
-            }).error(function () {
-                alert("Error");
-                self.isSearching(false);
-            });
+                    self.isSearching(false);
+
+                }).error(function () {
+                    alert("Error");
+                    self.isSearching(false);
+                });
+            };
         };
-    };
 
-    function resultModel() {
-        var self = this;
+        function resultModel() {
+            var self = this;
 
-        self.largeImage = ko.observable();
-        self.appId = ko.observable();
-        self.appLink = ko.computed(function () {
-            return "@Url.Action("Index", "App")" + "?appId=" + self.appId();
-        }, this);
-    }
+            self.largeImage = ko.observable();
+            self.title = ko.observable();
+            self.currentVersion = ko.observable();
+            self.developerName = ko.observable();
+            self.appId = ko.observable();
+            self.appLink = ko.computed(function () {
+                return "@Url.Action("Index", "App")" + "?appId=" + self.appId();
+            }, this);
+        }
 
-    ko.applyBindings(model);
+        ko.applyBindings(model);
 
-</script>
+    </script>
+</body>
+</html>
