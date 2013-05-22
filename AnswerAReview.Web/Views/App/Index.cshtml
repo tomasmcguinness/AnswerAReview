@@ -13,8 +13,10 @@
     <div class="container" style="padding-top: 20px;">
         <div style="position: relative;">
             <h2 data-bind="text: appName"></h2>
-            <div class="pull-right" style="position: absolute; top: 0; right: 0; vertical-align: top; text-align:right;">
-                <button class="btn btn-primary">Claim This App</button><br />
+            <div class="pull-right" style="position: absolute; top: 0; right: 0; vertical-align: top;
+                text-align: right;">
+                <a href="@Url.Action("Index", "Account", new { appId = Model })" class="btn btn-info">
+                   <i class="icon-signin"></i>&nbsp;Claim This App</a><br />
                 <span>Did you develop this app?</span>
                 @*<span class="label label-success">AUTHOR REGISTERED
                 </span>*@
@@ -22,15 +24,23 @@
         </div>
         <h4 style="color: #888;" data-bind="text: developerName"></h4>
         <h4>All Reviews</h4>
+         <div class="well" data-bind="visible: isLoading">
+            <i class="icon-spinner icon-spin"></i>&nbsp;Loading reviews for this app...
+        </div>
         <div class="tab-pane active" id="home">
             <div data-bind="foreach: fiveStarReviews">
                 <div class="well well-transparent">
                     <h5><span data-bind="html: authorName"></span>
-                        <span class="icon-large" data-bind="css: { 'icon-star': rating() >= 1, 'icon-star-empty': rating() < 1}"></span>
-                        <span class="icon-large" data-bind="css: { 'icon-star': rating() >= 2, 'icon-star-empty': rating() < 2}"></span>
-                        <span class="icon-large" data-bind="css: { 'icon-star': rating() >= 3, 'icon-star-empty': rating() < 3}"></span>
-                        <span class="icon-large" data-bind="css: { 'icon-star': rating() >= 4, 'icon-star-empty': rating() < 4}"></span>
-                        <span class="icon-large" data-bind="css: { 'icon-star': rating() == 5, 'icon-star-empty': rating() < 5 }"></span>
+                        <span class="icon-large" data-bind="css: { 'icon-star': rating() >= 1, 'icon-star-empty': rating() < 1 }">
+                        </span>
+                        <span class="icon-large" data-bind="css: { 'icon-star': rating() >= 2, 'icon-star-empty': rating() < 2 }">
+                        </span>
+                        <span class="icon-large" data-bind="css: { 'icon-star': rating() >= 3, 'icon-star-empty': rating() < 3 }">
+                        </span>
+                        <span class="icon-large" data-bind="css: { 'icon-star': rating() >= 4, 'icon-star-empty': rating() < 4 }">
+                        </span>
+                        <span class="icon-large" data-bind="css: { 'icon-star': rating() == 5, 'icon-star-empty': rating() < 5 }">
+                        </span>
                     </h5>
                     <p data-bind="html: reviewBody"></p>
                     @*<div class="well well-small">
@@ -38,8 +48,9 @@
                         <span>Sorry you feel this way. Version 1.8 fixes a lot of these issues.    
                         </span>
                     </div>*@
-                    <button class="btn btn-info"><i class="icon-reply"></i>&#8194;Claim this app to answer
-                        the review</button>
+                    <a href="@Url.Action("Index", "Account", new { appId = Model })" class="btn btn-info">
+                        <i class="icon-reply"></i>&#8194;Claim this app to answer
+                        the review</a>
                     @*<button class="btn"><i class="icon-reply"></i>&#8194;Answer This Review</button>*@
                 </div>
             </div>
@@ -65,7 +76,10 @@
             self.developerName = ko.observable();
             self.fiveStarReviews = ko.observableArray();
             self.fourStarReviews = ko.observableArray();
+            self.isLoading = ko.observable();
             self.load = function () {
+
+                self.isLoading(true);
 
                 $.ajax({
                     url: "https://itunes.apple.com/lookup?id=" + "@Model",
@@ -82,6 +96,8 @@
                         url: "http://itunes.apple.com/US/rss/customerreviews/id=" + "@Model" + "/json",
                         dataType: "json"
                     }).done(function (data) {
+
+                        self.isLoading(false);
 
                         if (data.feed.entry != null) {
                             console.log("Found Reviews: " + data.feed.entry.length);
@@ -111,5 +127,17 @@
         ko.applyBindings(model);
 
     </script>
+    <script>
+        (function (i, s, o, g, r, a, m) {
+            i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
+                (i[r].q = i[r].q || []).push(arguments)
+            }, i[r].l = 1 * new Date(); a = s.createElement(o),
+            m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
+        })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+        ga('create', 'UA-41081297-1', 'azurewebsites.net');
+        ga('send', 'pageview');
+
+</script>
 </body>
 </html>
